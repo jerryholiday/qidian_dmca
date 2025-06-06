@@ -1,7 +1,7 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
 import { FindManyOptions } from 'typeorm';
-import qs from 'querystring';
+import { stringify } from 'querystring';
 import { uniq, uniqBy } from 'lodash';
 import { BookEntity } from './entities/book.entity';
 import { BookRepoService } from './repo/book.repo.service';
@@ -123,7 +123,7 @@ export class DmcaService {
       'kk%9$k6d@z' + webUrl + bookName + title + authorName + cbid + timestamp,
     );
 
-    const querystring = qs.stringify({
+    const querystring = stringify({
       webUrl,
       bookName,
       title,
