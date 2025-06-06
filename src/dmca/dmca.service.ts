@@ -71,6 +71,7 @@ export class DmcaService {
       ),
     );
 
+    console.log(`盗版链接数量： ${piratedHrefList.length}`);
     if (piratedHrefList.length) {
       // 先插入数据库
       await this.dmcaLinkRepo.insertSkipErrors(
