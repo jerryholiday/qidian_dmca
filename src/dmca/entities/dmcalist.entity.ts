@@ -10,26 +10,33 @@ import {
 @Entity({
   database: 'dmca',
   name: 'qidian_dmca_list',
-  comment: '起点 DMCA 投诉链接列表',
+  comment: '起点 DMCA 投诉列表',
 })
 export class DMCAListEntity {
   @PrimaryGeneratedColumn({ type: 'bigint', comment: '自增长 ID' })
   id: string;
 
-  @Index('idx_cbid')
-  @Column('bigint', { comment: 'CBID' })
-  cbid: string;
+  @Column('bigint', { comment: 'QDBID' })
+  bookId: string;
 
-  @Index('idx_url', { unique: true })
-  @Column('varchar', { length: 500, comment: '链接' })
-  url: string;
+  @Column('longtext', { comment: '链接' })
+  infringingURLs: string;
 
-  @Column('varchar', { length: 255, comment: '页面名称' })
-  title: string;
+  @Index('idx_isfinish')
+  @Column('tinyint', { comment: '是否完成', default: 0 })
+  isFinish: number;
 
-  @Index('idx_status')
-  @Column('tinyint', { comment: '是否投诉 0：未投诉；1：已投诉', default: 0 })
-  status: 0 | 1;
+  @Column('varchar', { length: 500, comment: '起点正版链接' })
+  originalURL: string;
+
+  @Column('varchar', { length: 500, comment: '操作账号', nullable: true })
+  operator?: string | null;
+
+  @Column('varchar', { length: 500, comment: '链接', nullable: true })
+  notice_id?: string | null;
+
+  @Column('date', { comment: '日期时间' })
+  dateTime: Date;
 
   @CreateDateColumn({ name: 'create_time' })
   createTime: Date;

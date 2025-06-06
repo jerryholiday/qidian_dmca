@@ -8,6 +8,7 @@ import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { TransformInterceptor } from './interceptors/transform.interceptor';
 import { GeneralQueryEntity } from './dmca/entities/generalQuery.entity';
 import { DomainListEntity } from './dmca/entities/domainlist';
+import { DMCALinkEntity } from './dmca/entities/dmcalink.entity';
 import { DMCAListEntity } from './dmca/entities/dmcalist.entity';
 
 @Module({
@@ -23,6 +24,7 @@ import { DMCAListEntity } from './dmca/entities/dmcalist.entity';
         BookEntity,
         GeneralQueryEntity,
         DomainListEntity,
+        DMCALinkEntity,
         DMCAListEntity,
       ],
     }),

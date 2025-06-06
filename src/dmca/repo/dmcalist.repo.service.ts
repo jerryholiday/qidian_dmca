@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource } from 'typeorm';
 import { DMCAListEntity } from '../entities/dmcalist.entity';
+import { DataSource } from 'typeorm';
 
 @Injectable()
 export class DMCAListRepoService {
@@ -10,13 +10,7 @@ export class DMCAListRepoService {
     return this.dataSource.getRepository<DMCAListEntity>(DMCAListEntity);
   }
 
-  insertSkipErrors(data: Pick<DMCAListEntity, 'cbid' | 'title' | 'url'>[]) {
-    return this.repo
-      .createQueryBuilder()
-      .insert()
-      .into(DMCAListEntity)
-      .values(data)
-      .orIgnore()
-      .execute();
+  insert(data: Omit<DMCAListEntity, 'id' | 'createTime' | 'updateTime'>) {
+    return this.repo.insert(data);
   }
 }

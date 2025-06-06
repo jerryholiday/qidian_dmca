@@ -5,6 +5,7 @@ import { DmcaService } from './dmca.service';
 import { BookRepoService } from './repo/book.repo.service';
 import { GeneralQueryRepoService } from './repo/generalQuery.repo.service';
 import { DomainlistRepoService } from './repo/domainlist.repo.service';
+import { DMCALinkRepoService } from './repo/dmcalink.repo.service';
 import { DMCAListRepoService } from './repo/dmcalist.repo.service';
 
 @Module({
@@ -14,6 +15,7 @@ import { DMCAListRepoService } from './repo/dmcalist.repo.service';
     BookRepoService,
     GeneralQueryRepoService,
     DomainlistRepoService,
+    DMCALinkRepoService,
     DMCAListRepoService,
     DmcaService,
   ],

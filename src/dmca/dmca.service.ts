@@ -10,8 +10,9 @@ import { lastValueFrom, map } from 'rxjs';
 import { md5 } from 'src/utils';
 import { UrlIsPiratedTypeEnum } from 'src/constants';
 import { DomainlistRepoService } from './repo/domainlist.repo.service';
-import { DMCAListRepoService } from './repo/dmcalist.repo.service';
+import { DMCALinkRepoService } from './repo/dmcalink.repo.service';
 import { HrefObj } from 'src/interfaces';
+import { DMCAListRepoService } from './repo/dmcalist.repo.service';
 
 @Injectable()
 export class DmcaService {
@@ -20,7 +21,8 @@ export class DmcaService {
     public readonly bookRepo: BookRepoService,
     public readonly generalQueryRepo: GeneralQueryRepoService,
     public readonly domainlistRepo: DomainlistRepoService,
-    public readonly dmcalistRepo: DMCAListRepoService,
+    public readonly dmcaLinkRepo: DMCALinkRepoService,
+    public readonly dmcaListRepo: DMCAListRepoService,
   ) {}
 
   queryBooks(pageNum = 1, pageSize = 10, cbid?: string, title?: string) {
@@ -39,6 +41,9 @@ export class DmcaService {
   }
 
   async submitBookHref(cbid: string, title: string, hrefs: HrefObj[]) {
+    const book = await this.bookRepo.selectOne({ cbid });
+    if (!book) return;
+
     const hrefList = hrefs
       .map((href) => {
         try {
@@ -66,14 +71,23 @@ export class DmcaService {
       ),
     );
 
-    // 先插入数据库
-    await this.dmcalistRepo.insertSkipErrors(
-      piratedHrefList.map((hrefObj) => ({
-        cbid,
-        url: hrefObj.href,
-        title: hrefObj.title,
-      })),
-    );
+    if (piratedHrefList.length) {
+      // 先插入数据库
+      await this.dmcaLinkRepo.insertSkipErrors(
+        piratedHrefList.map((hrefObj) => ({
+          bookId: book.qdbid,
+          url: hrefObj.href,
+          title: hrefObj.title,
+        })),
+      );
+      await this.dmcaListRepo.insert({
+        bookId: book.qdbid,
+        originalURL: `https://www.qidian.com/book/${book.qdbid}/`,
+        infringingURLs: piratedHrefList.map((item) => item.href).join(','),
+        isFinish: 0,
+        dateTime: new Date(),
+      });
+    }
 
     // 需要调用接口判断是否盗版
     const needToCheckHrefList = hrefList.filter(
@@ -87,7 +101,7 @@ export class DmcaService {
         hrefObj.href,
         hrefObj.title,
         title,
-        cbid,
+        book.qdbid,
       );
       return { ...hrefObj, isPirated };
     });
@@ -100,11 +114,11 @@ export class DmcaService {
       })),
     );
 
-    await this.dmcalistRepo.insertSkipErrors(
+    await this.dmcaLinkRepo.insertSkipErrors(
       list
         .filter((item) => item.isPirated)
         .map((item) => ({
-          cbid,
+          bookId: book.qdbid,
           url: item.href,
           title: item.title,
         })),

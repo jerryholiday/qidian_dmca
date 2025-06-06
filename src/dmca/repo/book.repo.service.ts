@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource, FindManyOptions } from 'typeorm';
+import { DataSource, FindManyOptions, FindOneOptions } from 'typeorm';
 import { BookEntity } from '../entities/book.entity';
 
 @Injectable()
@@ -8,6 +8,10 @@ export class BookRepoService {
 
   private get repo() {
     return this.dataSource.getRepository<BookEntity>(BookEntity);
+  }
+
+  selectOne(condition: FindOneOptions<BookEntity>['where']) {
+    return this.repo.findOne({ where: condition });
   }
 
   select(
