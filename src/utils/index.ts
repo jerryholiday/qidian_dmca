@@ -1,4 +1,4 @@
-import { createHash } from 'crypto';
+import { createHash } from 'node:crypto';
 
 export const md5 = (str: string) => {
   const hash = createHash('md5');
