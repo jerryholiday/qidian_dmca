@@ -7,7 +7,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity({ database: 'dmca', name: 'qidian_book' })
+@Entity({ database: 'dmca', name: 'qidian_book', comment: '起点 DMCA 书单' })
 export class BookEntity {
   @PrimaryGeneratedColumn({ type: 'bigint', comment: '自增长 ID' })
   id: string;

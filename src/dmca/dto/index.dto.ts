@@ -8,6 +8,7 @@ import {
   ArrayMinSize,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { HrefObj } from 'src/interfaces';
 
 export class QueryBooksDto {
   @IsOptional()
@@ -36,8 +37,24 @@ export class SubmitBookHrefsDto {
   @IsString()
   cbid: string;
 
+  @IsString()
+  title: string;
+
   @IsArray()
   @ArrayMinSize(1, { message: 'hrefs 数组不能为空' })
-  @IsString({ each: true, message: '每个元素必须是字符串' })
-  hrefs: string[];
+  hrefs: HrefObj[];
+}
+
+export class QueryGeneralQueriesDto {
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  pageNum?: number = 1;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  pageSize?: number = 10;
 }
