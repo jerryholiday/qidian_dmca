@@ -94,9 +94,9 @@ export class DmcaService {
         'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=a159eb04-dfe9-41f0-abd5-7280d5ef9bfe',
         json2md([
           { h1: `《${book.title}》提交盗版链接` },
-          { hr: `盗版链接数: ${piratedHrefList.length}` },
+          { blockquote: `盗版链接数: ${piratedHrefList.length}` },
           {
-            hr: `盗版链接: ${piratedHrefList.map((item) => item.href).join()}`,
+            blockquote: `盗版链接: ${piratedHrefList.map((item) => item.href).join()}`,
           },
         ]),
       );
