@@ -1,14 +1,5 @@
-import {
-  IsOptional,
-  IsString,
-  IsArray,
-  IsInt,
-  Min,
-  Max,
-  ArrayMinSize,
-} from 'class-validator';
+import { IsOptional, IsString, IsInt, Min, Max } from 'class-validator';
 import { Type } from 'class-transformer';
-import { HrefObj } from 'src/interfaces';
 
 export class QueryBooksDto {
   @IsOptional()
@@ -31,18 +22,6 @@ export class QueryBooksDto {
   @Min(1)
   @Max(100)
   pageSize?: number = 10;
-}
-
-export class SubmitBookHrefsDto {
-  @IsString()
-  cbid: string;
-
-  @IsString()
-  title: string;
-
-  @IsArray()
-  @ArrayMinSize(1, { message: 'hrefs 数组不能为空' })
-  hrefs: HrefObj[];
 }
 
 export class QueryGeneralQueriesDto {

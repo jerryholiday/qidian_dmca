@@ -1,48 +1,46 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
-import { FindManyOptions } from 'typeorm';
 import { stringify } from 'querystring';
 import { uniq, uniqBy } from 'lodash';
 import * as json2md from 'json2md';
-import { BookEntity } from './entities/book.entity';
-import { BookRepoService } from './repo/book.repo.service';
-import { GeneralQueryRepoService } from './repo/generalQuery.repo.service';
 import { lastValueFrom, map } from 'rxjs';
 import { md5, sendMkNotification } from 'src/utils';
 import { UrlIsPiratedTypeEnum } from 'src/constants';
-import { DomainlistRepoService } from './repo/domainlist.repo.service';
-import { DMCALinkRepoService } from './repo/dmcalink.repo.service';
 import { HrefObj } from 'src/interfaces';
-import { DMCAListRepoService } from './repo/dmcalist.repo.service';
+import { GoogleDMCALinkRepoService } from './repo/googledmcalink.repo.service';
+import { GoogleDMCAListRepoService } from './repo/googledmcalist.repo.service';
+import { BookService } from '../book/book.service';
+import { HostlistService } from '../hostlist/hostlist.service';
+import { GoogleAccountRepoService } from './repo/googleaccount.repo.service';
 
 @Injectable()
-export class DmcaService {
+export class GoogleDMCAService {
   constructor(
     private readonly httpService: HttpService,
-    public readonly bookRepo: BookRepoService,
-    public readonly generalQueryRepo: GeneralQueryRepoService,
-    public readonly domainlistRepo: DomainlistRepoService,
-    public readonly dmcaLinkRepo: DMCALinkRepoService,
-    public readonly dmcaListRepo: DMCAListRepoService,
+    private readonly bookService: BookService,
+    private readonly hostlistService: HostlistService,
+    public readonly accountRepo: GoogleAccountRepoService,
+    public readonly dmcaLinkRepo: GoogleDMCALinkRepoService,
+    public readonly dmcaListRepo: GoogleDMCAListRepoService,
   ) {}
 
-  queryBooks(pageNum = 1, pageSize = 10, cbid?: string, title?: string) {
-    const condition: FindManyOptions<BookEntity>['where'] = {};
-    if (cbid) {
-      condition.cbid = cbid;
-    }
-    if (title) {
-      condition.title = title;
-    }
-    return this.bookRepo.select(pageNum, pageSize, condition);
+  /**
+   * 获取一个可用的账号
+   * @returns
+   */
+  getAccount() {
+    return this.accountRepo.selectOne();
   }
 
-  queryGeneralQueries(pageNum = 1, pageSize = 10) {
-    return this.generalQueryRepo.select(pageNum, pageSize);
-  }
-
+  /**
+   * 提交盗版链接
+   * @param cbid
+   * @param title
+   * @param hrefs
+   * @returns
+   */
   async submitBookHref(cbid: string, title: string, hrefs: HrefObj[]) {
-    const book = await this.bookRepo.selectOne({ cbid });
+    const book = await this.bookService.bookRepo.selectOne({ cbid });
     if (!book) return;
 
     const hrefList = hrefs
@@ -61,7 +59,7 @@ export class DmcaService {
       .filter((item) => item !== null);
 
     // 检查数据库里的 domainlist 是否有
-    const domains = await this.domainlistRepo.bulkSelect(
+    const domains = await this.hostlistService.hostlistRepo.bulkSelect(
       uniq(hrefList.map((item) => item.hostname)),
     );
 
@@ -123,7 +121,7 @@ export class DmcaService {
     });
     const list = await Promise.all(tasks);
 
-    await this.domainlistRepo.insertSkipErrors(
+    await this.hostlistService.hostlistRepo.insertSkipErrors(
       uniqBy(list, (item) => item.hostname).map((item) => ({
         hostname: item.hostname,
         isPirated: item.isPirated ? 1 : 0,
@@ -141,6 +139,15 @@ export class DmcaService {
     );
   }
 
+  /**
+   * 检查链接是否盗版
+   * @param webUrl
+   * @param title
+   * @param bookName
+   * @param cbid
+   * @param authorName
+   * @returns
+   */
   private async checkIsPirated(
     webUrl: string,
     title: string,

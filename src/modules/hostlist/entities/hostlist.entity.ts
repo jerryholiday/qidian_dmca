@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 
 @Entity({ database: 'dmca', name: 'domain_list', comment: '域名列表' })
-export class DomainListEntity {
+export class HostlistEntity {
   @PrimaryGeneratedColumn({ type: 'bigint', comment: '自增长 ID' })
   id: string;
 

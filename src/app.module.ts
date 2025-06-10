@@ -1,15 +1,25 @@
-import { Module, ValidationPipe } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  ValidationPipe,
+} from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { DmcaModule } from './dmca/dmca.module';
-import { BookEntity } from './dmca/entities/book.entity';
+import { BookEntity } from './modules/book/entities/book.entity';
 import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { TransformInterceptor } from './interceptors/transform.interceptor';
-import { GeneralQueryEntity } from './dmca/entities/generalQuery.entity';
-import { DomainListEntity } from './dmca/entities/domainlist';
-import { DMCALinkEntity } from './dmca/entities/dmcalink.entity';
-import { DMCAListEntity } from './dmca/entities/dmcalist.entity';
+import { GeneralQueryEntity } from './modules/book/entities/generalQuery.entity';
+import { HostlistEntity } from './modules/hostlist/entities/hostlist.entity';
+import { GoogleDMCALinkEntity } from './modules/google/entities/googledmcalink.entity';
+import { GoogleDMCAListEntity } from './modules/google/entities/googledmcalist.entity';
+import { BookModule } from './modules/book/book.module';
+import { HostlistModule } from './modules/hostlist/hostlist.module';
+import { GoogleDMCAModule } from './modules/google/googledmca.module';
+import { BingDMCAModule } from './modules/bing/bingdmca.module';
+import { RequestLoggerMiddleware } from './middlewares/accesslog.middleware';
+import { GoogleAccountEntity } from './modules/google/entities/googleaccount.entity';
 
 @Module({
   imports: [
@@ -23,12 +33,16 @@ import { DMCAListEntity } from './dmca/entities/dmcalist.entity';
       entities: [
         BookEntity,
         GeneralQueryEntity,
-        DomainListEntity,
-        DMCALinkEntity,
-        DMCAListEntity,
+        HostlistEntity,
+        GoogleAccountEntity,
+        GoogleDMCALinkEntity,
+        GoogleDMCAListEntity,
       ],
     }),
-    DmcaModule,
+    BookModule,
+    HostlistModule,
+    GoogleDMCAModule,
+    BingDMCAModule,
   ],
   controllers: [AppController],
   providers: [
@@ -40,4 +54,8 @@ import { DMCAListEntity } from './dmca/entities/dmcalist.entity';
     },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(RequestLoggerMiddleware).forRoutes('*');
+  }
+}

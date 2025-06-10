@@ -9,10 +9,10 @@ import {
 
 @Entity({
   database: 'dmca',
-  name: 'qidian_dmca_link',
-  comment: '起点 DMCA 投诉链接列表',
+  name: 'qidian_dmca_google_link',
+  comment: '起点 DMCA Google投诉链接列表',
 })
-export class DMCALinkEntity {
+export class GoogleDMCALinkEntity {
   @PrimaryGeneratedColumn({ type: 'bigint', comment: '自增长 ID' })
   id: string;
 
