@@ -96,7 +96,10 @@ export class DmcaService {
           { h1: `《${book.title}》提交盗版链接` },
           { blockquote: `盗版链接数: ${piratedHrefList.length}` },
           {
-            blockquote: `盗版链接: ${piratedHrefList.map((item) => item.href).join()}`,
+            blockquote: `盗版链接(前10个): ${piratedHrefList
+              .slice(0, 10)
+              .map((item) => item.href)
+              .join()}`,
           },
         ]),
       );
