@@ -23,12 +23,18 @@ importers:
       '@nestjs/typeorm':
         specifier: ^11.0.0
         version: 11.0.0(@nestjs/common@11.1.2(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.1.2(@nestjs/common@11.1.2(class-transformer@0.5.1)(class-validator@0.14.2)(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/platform-express@11.1.2)(reflect-metadata@0.2.2)(rxjs@7.8.2))(reflect-metadata@0.2.2)(rxjs@7.8.2)(typeorm@0.3.24(mysql2@3.14.1)(reflect-metadata@0.2.2)(ts-node@10.9.2(@swc/core@1.11.29)(@types/node@22.15.29)(typescript@5.8.3)))
+      axios:
+        specifier: ^1.9.0
+        version: 1.9.0
       class-transformer:
         specifier: ^0.5.1
         version: 0.5.1
       class-validator:
         specifier: ^0.14.2
         version: 0.14.2
+      json2md:
+        specifier: ^2.0.3
+        version: 2.0.3
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -75,6 +81,9 @@ importers:
       '@types/jest':
         specifier: ^29.5.14
         version: 29.5.14
+      '@types/json2md':
+        specifier: ^1.5.4
+        version: 1.5.4
       '@types/lodash':
         specifier: ^4.17.17
         version: 4.17.17
@@ -1030,6 +1039,9 @@ packages:
 
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==, tarball: https://mirrors.tencent.com/npm/@types/json-schema/-/json-schema-7.0.15.tgz}
+
+  '@types/json2md@1.5.4':
+    resolution: {integrity: sha512-OFTAYD7Nnyu7FZPGnDwYbGOTKqzDfX71uFSgTbGhcr0aHCi17QkSOY3wO5H4yv5h23Ly+7suvf2lzHcdeDIH2Q==, tarball: https://mirrors.tencent.com/npm/@types/json2md/-/json2md-1.5.4.tgz}
 
   '@types/lodash@4.17.17':
     resolution: {integrity: sha512-RRVJ+J3J+WmyOTqnz3PiBLA501eKwXl2noseKOrNo/6+XEHjTAxO4xHvxQB6QuNm+s4WRbn6rSiap8+EA+ykFQ==, tarball: https://mirrors.tencent.com/npm/@types/lodash/-/lodash-4.17.17.tgz}
@@ -2182,6 +2194,9 @@ packages:
     resolution: {integrity: sha512-JmXMZ6wuvDmLiHEml9ykzqO6lwFbof0GG4IkcGaENdCRDDmMVnny7s5HsIgHCbaq0w2MyPhDqkhTUgS2LU2PHA==, tarball: https://mirrors.tencent.com/npm/imurmurhash/-/imurmurhash-0.1.4.tgz}
     engines: {node: '>=0.8.19'}
 
+  indento@1.1.14:
+    resolution: {integrity: sha512-K4cK97v4M/ucCAbe3LUpg994folYL0WnEiCFxHXAIowKLbBb/Ahiazkz3Ao5gRar4i9pDr3imcpq4suOu0FbNw==, tarball: https://mirrors.tencent.com/npm/indento/-/indento-1.1.14.tgz}
+
   inflight@1.0.6:
     resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==, tarball: https://mirrors.tencent.com/npm/inflight/-/inflight-1.0.6.tgz}
 
@@ -2457,6 +2472,9 @@ packages:
 
   json-stable-stringify-without-jsonify@1.0.1:
     resolution: {integrity: sha512-Bdboy+l7tA3OGW6FjyFHWkP5LuByj1Tk33Ljyq0axyzdk9//JSi2u3fP1QSmd1KNwq6VOKYGlAu87CisVir6Pw==, tarball: https://mirrors.tencent.com/npm/json-stable-stringify-without-jsonify/-/json-stable-stringify-without-jsonify-1.0.1.tgz}
+
+  json2md@2.0.3:
+    resolution: {integrity: sha512-ZPzh6Djvqz8grJMxKllfCHo0p+p7BsbZ1J95KcCJgvvfdoy7myuKrrkUp80Kpy+wGauykC0dYljLqLY0kENaOw==, tarball: https://mirrors.tencent.com/npm/json2md/-/json2md-2.0.3.tgz}
 
   json5@2.2.3:
     resolution: {integrity: sha512-XmOWe7eyHYH14cLdVPoyg+GOH3rYX++KpzrylJwSW98t3Nk+U8XOl8FWKOgwtzdb8lXGf6zYwDUzeHMWfxasyg==, tarball: https://mirrors.tencent.com/npm/json5/-/json5-2.2.3.tgz}
@@ -4619,6 +4637,8 @@ snapshots:
 
   '@types/json-schema@7.0.15': {}
 
+  '@types/json2md@1.5.4': {}
+
   '@types/lodash@4.17.17': {}
 
   '@types/methods@1.1.4': {}
@@ -5908,6 +5928,8 @@ snapshots:
 
   imurmurhash@0.1.4: {}
 
+  indento@1.1.14: {}
+
   inflight@1.0.6:
     dependencies:
       once: 1.4.0
@@ -6354,6 +6376,10 @@ snapshots:
   json-schema-traverse@1.0.0: {}
 
   json-stable-stringify-without-jsonify@1.0.1: {}
+
+  json2md@2.0.3:
+    dependencies:
+      indento: 1.1.14
 
   json5@2.2.3: {}
 

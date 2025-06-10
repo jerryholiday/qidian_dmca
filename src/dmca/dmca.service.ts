@@ -3,11 +3,12 @@ import { Injectable } from '@nestjs/common';
 import { FindManyOptions } from 'typeorm';
 import { stringify } from 'querystring';
 import { uniq, uniqBy } from 'lodash';
+import json2md from 'json2md';
 import { BookEntity } from './entities/book.entity';
 import { BookRepoService } from './repo/book.repo.service';
 import { GeneralQueryRepoService } from './repo/generalQuery.repo.service';
 import { lastValueFrom, map } from 'rxjs';
-import { md5 } from 'src/utils';
+import { md5, sendMkNotification } from 'src/utils';
 import { UrlIsPiratedTypeEnum } from 'src/constants';
 import { DomainlistRepoService } from './repo/domainlist.repo.service';
 import { DMCALinkRepoService } from './repo/dmcalink.repo.service';
@@ -88,6 +89,17 @@ export class DmcaService {
         isFinish: 0,
         dateTime: new Date(),
       });
+
+      await sendMkNotification(
+        'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=a159eb04-dfe9-41f0-abd5-7280d5ef9bfe',
+        json2md([
+          { h1: `《${book.title}》提交盗版链接` },
+          { hr: `盗版链接数: ${piratedHrefList.length}` },
+          {
+            hr: `盗版链接: ${piratedHrefList.map((item) => item.href).join()}`,
+          },
+        ]),
+      );
     }
 
     // 需要调用接口判断是否盗版
