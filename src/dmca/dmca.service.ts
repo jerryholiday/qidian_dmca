@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { FindManyOptions } from 'typeorm';
 import { stringify } from 'querystring';
 import { uniq, uniqBy } from 'lodash';
-import json2md from 'json2md';
+import * as json2md from 'json2md';
 import { BookEntity } from './entities/book.entity';
 import { BookRepoService } from './repo/book.repo.service';
 import { GeneralQueryRepoService } from './repo/generalQuery.repo.service';
