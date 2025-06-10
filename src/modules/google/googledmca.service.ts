@@ -83,7 +83,7 @@ export class GoogleDMCAService {
       await this.dmcaListRepo.insert({
         bookId: book.qdbid,
         originalURL: `https://www.qidian.com/book/${book.qdbid}/`,
-        infringingURLs: piratedHrefList.map((item) => item.href).join(','),
+        infringingURLs: piratedHrefList.map((item) => item.href).join('\n'),
         isFinish: 0,
         dateTime: new Date(),
       });
