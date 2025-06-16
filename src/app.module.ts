@@ -20,6 +20,9 @@ import { GoogleDMCAModule } from './modules/google/googledmca.module';
 import { BingDMCAModule } from './modules/bing/bingdmca.module';
 import { RequestLoggerMiddleware } from './middlewares/accesslog.middleware';
 import { GoogleAccountEntity } from './modules/google/entities/googleaccount.entity';
+import { BingAccountEntity } from './modules/bing/entities/bingaccount.entity';
+import { BingDMCALinkEntity } from './modules/bing/entities/bingdmcalink.entity';
+import { BingDMCAListEntity } from './modules/bing/entities/bingdmcalist.entity';
 
 @Module({
   imports: [
@@ -37,6 +40,10 @@ import { GoogleAccountEntity } from './modules/google/entities/googleaccount.ent
         GoogleAccountEntity,
         GoogleDMCALinkEntity,
         GoogleDMCAListEntity,
+
+        BingAccountEntity,
+        BingDMCALinkEntity,
+        BingDMCAListEntity,
       ],
     }),
     BookModule,

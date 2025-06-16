@@ -91,7 +91,7 @@ export class GoogleDMCAService {
       await sendMkNotification(
         'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=a159eb04-dfe9-41f0-abd5-7280d5ef9bfe',
         json2md([
-          { h1: `《${book.title}》提交盗版链接` },
+          { h1: `[Google]《${book.title}》提交盗版链接` },
           { blockquote: `盗版链接数: ${piratedHrefList.length}` },
           {
             blockquote: `盗版链接(前10个): ${piratedHrefList
