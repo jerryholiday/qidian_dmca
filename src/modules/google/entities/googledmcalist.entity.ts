@@ -22,6 +22,9 @@ export class GoogleDMCAListEntity {
   @Column('longtext', { comment: '链接' })
   infringingURLs: string;
 
+  @Column('int', { comment: '链接数量', default: 0 })
+  infringingURLCount: number;
+
   @Index('idx_isfinish')
   @Column('tinyint', { comment: '是否完成', default: 0 })
   isFinish: number;
@@ -32,8 +35,13 @@ export class GoogleDMCAListEntity {
   @Column('varchar', { length: 500, comment: '操作账号', nullable: true })
   operator?: string | null;
 
-  @Column('varchar', { length: 500, comment: '链接', nullable: true })
-  notice_id?: string | null;
+  @Column('varchar', {
+    name: 'notice_id',
+    length: 500,
+    comment: '链接',
+    nullable: true,
+  })
+  noticeId?: string | null;
 
   @Column('date', { comment: '日期时间' })
   dateTime: Date;

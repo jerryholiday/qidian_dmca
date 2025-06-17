@@ -1,22 +1,22 @@
-import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
-import { stringify } from 'querystring';
-import { uniq, uniqBy } from 'lodash';
 import * as json2md from 'json2md';
-import { lastValueFrom, map } from 'rxjs';
-import { md5, sendMkNotification } from 'src/utils';
-import { UrlIsPiratedTypeEnum } from 'src/constants';
+import { sendMkNotification } from 'src/utils';
 import { HrefObj } from 'src/interfaces';
 import { GoogleDMCALinkRepoService } from './repo/googledmcalink.repo.service';
 import { GoogleDMCAListRepoService } from './repo/googledmcalist.repo.service';
 import { BookService } from '../book/book.service';
 import { HostlistService } from '../hostlist/hostlist.service';
 import { GoogleAccountRepoService } from './repo/googleaccount.repo.service';
+import { In } from 'typeorm';
+import * as dayjs from 'dayjs';
 
 @Injectable()
 export class GoogleDMCAService {
+  private readonly EACH_DMCA_LIST_MAX_COUNT = 100;
+  private readonly WEBHOOK =
+    'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=a159eb04-dfe9-41f0-abd5-7280d5ef9bfe';
+
   constructor(
-    private readonly httpService: HttpService,
     private readonly bookService: BookService,
     private readonly hostlistService: HostlistService,
     public readonly accountRepo: GoogleAccountRepoService,
@@ -35,147 +35,180 @@ export class GoogleDMCAService {
   /**
    * 提交盗版链接
    * @param cbid
-   * @param title
    * @param hrefs
    * @returns
    */
-  async submitBookHref(cbid: string, title: string, hrefs: HrefObj[]) {
+  async submitBookHref(cbid: string, hrefs: HrefObj[]) {
     const book = await this.bookService.bookRepo.selectOne({ cbid });
     if (!book) return;
 
-    const hrefList = hrefs
-      .map((href) => {
-        try {
-          const urlObj = new URL(href.href);
-          return {
-            ...href,
-            hostname: urlObj.hostname,
-          };
-        } catch {
-          console.error(`URL不合法： ${href.href}`);
-          return null;
-        }
-      })
-      .filter((item) => item !== null);
+    // 盗版链接
+    let piratedHrefList: (HrefObj & { hostname: string })[] = [];
+    // 新增盗版链接数
+    let newPiratedHrefList: (HrefObj & { hostname: string })[] = [];
+    // 异常
+    let errmsg = '';
 
-    // 检查数据库里的 domainlist 是否有
-    const domains = await this.hostlistService.hostlistRepo.bulkSelect(
-      uniq(hrefList.map((item) => item.hostname)),
-    );
+    try {
+      const hrefList = hrefs
+        .map((href) => {
+          try {
+            const urlObj = new URL(href.href);
+            return {
+              ...href,
+              hostname: urlObj.hostname,
+            };
+          } catch {
+            console.error(`URL不合法： ${href.href}`);
+            return null;
+          }
+        })
+        .filter((item) => item !== null);
 
-    // 盗版链接对象列表
-    const piratedHrefList = hrefList.filter((hrefObj) =>
-      domains.some(
-        (item) => item.hostname === hrefObj.hostname && item.isPirated === 1,
-      ),
-    );
-
-    console.log(`盗版链接数量： ${piratedHrefList.length}`);
-    if (piratedHrefList.length) {
-      // 先插入数据库
-      await this.dmcaLinkRepo.insertSkipErrors(
-        piratedHrefList.map((hrefObj) => ({
-          bookId: book.qdbid,
-          url: hrefObj.href,
-          title: hrefObj.title,
-        })),
+      // 盗版链接
+      piratedHrefList = await this.hostlistService.checkPiratedURLList(
+        book.cbid,
+        book.title,
+        hrefList,
       );
-      await this.dmcaListRepo.insert({
-        bookId: book.qdbid,
-        originalURL: `https://www.qidian.com/book/${book.qdbid}/`,
-        infringingURLs: piratedHrefList.map((item) => item.href).join('\n'),
-        isFinish: 0,
-        dateTime: new Date(),
-      });
 
+      console.log(
+        `提交数: ${hrefs.length}; 盗版链接数： ${piratedHrefList.length}`,
+      );
+
+      if (piratedHrefList.length) {
+        // 先查是否有重复数据
+        const alreadyExistedLink = await this.dmcaLinkRepo.bulkSelect(
+          {
+            url: In(piratedHrefList.map((item) => item.href)),
+          },
+          ['url'],
+        );
+
+        // 新增的盗版链接
+        newPiratedHrefList = piratedHrefList.filter(
+          (item) => !alreadyExistedLink.some((a) => a.url === item.href),
+        );
+        if (!newPiratedHrefList.length) return;
+
+        await this.dmcaLinkRepo.insertSkipErrors(
+          newPiratedHrefList.map((hrefObj) => ({
+            bookId: book.qdbid,
+            url: hrefObj.href,
+            title: hrefObj.title,
+          })),
+        );
+
+        // 未完成的 dmcaList
+        const unfinishedDmcaList = await this.dmcaListRepo.selectOne({
+          bookId: book.qdbid,
+          isFinish: 0,
+        });
+        if (
+          unfinishedDmcaList &&
+          unfinishedDmcaList.infringingURLCount < this.EACH_DMCA_LIST_MAX_COUNT
+        ) {
+          const infringingURLs = unfinishedDmcaList.infringingURLs
+            // TODO: 和 bing 数据结构不同
+            .split('\n')
+            .concat(
+              newPiratedHrefList
+                .slice(
+                  0,
+                  this.EACH_DMCA_LIST_MAX_COUNT -
+                    unfinishedDmcaList.infringingURLCount,
+                )
+                .map((item) => item.href),
+            );
+          // 更新盗版链接
+          await this.dmcaListRepo.update(unfinishedDmcaList.id, {
+            infringingURLs: infringingURLs.join('\n'),
+            infringingURLCount: infringingURLs.length,
+          });
+
+          // 剩下的盗版链接新存一条数据
+          const leftNewPiratedHrefList = newPiratedHrefList.slice(
+            this.EACH_DMCA_LIST_MAX_COUNT -
+              unfinishedDmcaList.infringingURLCount,
+          );
+          if (leftNewPiratedHrefList.length) {
+            await this.dmcaListRepo.insert({
+              bookId: book.qdbid,
+              originalURL: `https://www.qidian.com/book/${book.qdbid}/`,
+              // TODO: 和 bing 数据库不同的地方
+              infringingURLs: leftNewPiratedHrefList
+                .map((item) => item.href)
+                .join('\n'),
+              infringingURLCount: newPiratedHrefList.length,
+              isFinish: 0,
+              dateTime: new Date(),
+            });
+          }
+        } else {
+          await this.dmcaListRepo.insert({
+            bookId: book.qdbid,
+            originalURL: `https://www.qidian.com/book/${book.qdbid}/`,
+            // TODO: 和 bing 数据库不同的地方
+            infringingURLs: newPiratedHrefList
+              .map((item) => item.href)
+              .join('\n'),
+            infringingURLCount: newPiratedHrefList.length,
+            isFinish: 0,
+            dateTime: new Date(),
+          });
+        }
+      }
+    } catch (e) {
+      errmsg = (e as Error).message;
+    } finally {
       await sendMkNotification(
         'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=a159eb04-dfe9-41f0-abd5-7280d5ef9bfe',
         json2md([
           { h1: `[Google]《${book.title}》提交盗版链接` },
+          { blockquote: `爬取链接数: ${hrefs.length}` },
           { blockquote: `盗版链接数: ${piratedHrefList.length}` },
+          { blockquote: `新增盗版链接数: ${newPiratedHrefList.length}` },
           {
-            blockquote: `盗版链接(前10个): ${piratedHrefList
+            blockquote: `新增盗版链接(前10个): ${newPiratedHrefList
               .slice(0, 10)
               .map((item) => item.href)
               .join()}`,
           },
+          {
+            blockquote: `异常: ${errmsg}`,
+          },
         ]),
       );
     }
-
-    // 需要调用接口判断是否盗版
-    const needToCheckHrefList = hrefList.filter(
-      (hrefObj) => !domains.some((item) => item.hostname === hrefObj.hostname),
-    );
-
-    if (!needToCheckHrefList.length) return;
-
-    const tasks = needToCheckHrefList.map(async (hrefObj) => {
-      const isPirated = await this.checkIsPirated(
-        hrefObj.href,
-        hrefObj.title,
-        title,
-        book.qdbid,
-      );
-      return { ...hrefObj, isPirated };
-    });
-    const list = await Promise.all(tasks);
-
-    await this.hostlistService.hostlistRepo.insertSkipErrors(
-      uniqBy(list, (item) => item.hostname).map((item) => ({
-        hostname: item.hostname,
-        isPirated: item.isPirated ? 1 : 0,
-      })),
-    );
-
-    await this.dmcaLinkRepo.insertSkipErrors(
-      list
-        .filter((item) => item.isPirated)
-        .map((item) => ({
-          bookId: book.qdbid,
-          url: item.href,
-          title: item.title,
-        })),
-    );
   }
 
   /**
-   * 检查链接是否盗版
-   * @param webUrl
-   * @param title
-   * @param bookName
-   * @param cbid
-   * @param authorName
-   * @returns
+   * 投诉后的回调
+   * @param dmcaListId
    */
-  private async checkIsPirated(
-    webUrl: string,
-    title: string,
-    bookName: string,
-    cbid: string,
-    authorName = '',
+  async complaintCallback(
+    dmcaListId: string,
+    operator: string,
+    noticeId: string,
   ) {
-    const timestamp = Date.now();
-    const sign = md5(
-      'kk%9$k6d@z' + webUrl + bookName + title + authorName + cbid + timestamp,
-    );
+    const dmcaList = await this.dmcaListRepo.selectOne({ id: dmcaListId });
+    if (!dmcaList) return;
 
-    const querystring = stringify({
-      webUrl,
-      bookName,
-      title,
-      authorName,
-      cbid,
-      timestamp,
-      sign,
+    await this.dmcaListRepo.update(dmcaListId, {
+      isFinish: 1,
+      operator,
+      noticeId,
+      dateTime: new Date(),
     });
-    const requestUrl = `https://openapi-watchman.yuewen.com/api/url/checkIsPirated?${querystring}`;
 
-    const res$ = this.httpService
-      .get<{ code: UrlIsPiratedTypeEnum }>(requestUrl)
-      .pipe(map((response) => response.data));
-
-    const res = await lastValueFrom(res$);
-    return res.code === UrlIsPiratedTypeEnum.PIRATED;
+    await sendMkNotification(
+      this.WEBHOOK,
+      json2md([
+        { h1: `[Bing DMCA] 投诉成功` },
+        { blockquote: `报告ID: ${noticeId}` },
+        { blockquote: `投诉账号: ${operator}` },
+        { blockquote: `时间: ${dayjs().format('YYYY-MM-DD HH:mm')}` },
+      ]),
+    );
   }
 }

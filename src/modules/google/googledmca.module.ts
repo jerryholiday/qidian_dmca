@@ -6,10 +6,9 @@ import { GoogleAccountRepoService } from './repo/googleaccount.repo.service';
 import { GoogleDMCALinkRepoService } from './repo/googledmcalink.repo.service';
 import { GoogleDMCAListRepoService } from './repo/googledmcalist.repo.service';
 import { GoogleDMCAService } from './googledmca.service';
-import { HttpModule } from '@nestjs/axios';
 
 @Module({
-  imports: [HttpModule, BookModule, HostlistModule],
+  imports: [BookModule, HostlistModule],
   controllers: [GoogleDMCAController],
   providers: [
     GoogleAccountRepoService,

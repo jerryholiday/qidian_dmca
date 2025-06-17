@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource } from 'typeorm';
+import { DataSource, FindManyOptions } from 'typeorm';
 import { GoogleDMCALinkEntity } from '../entities/googledmcalink.entity';
 
 @Injectable()
@@ -10,6 +10,19 @@ export class GoogleDMCALinkRepoService {
     return this.dataSource.getRepository<GoogleDMCALinkEntity>(
       GoogleDMCALinkEntity,
     );
+  }
+
+  bulkSelect(
+    condition: FindManyOptions<GoogleDMCALinkEntity>['where'],
+    selection?: FindManyOptions<GoogleDMCALinkEntity>['select'],
+  ) {
+    const options: FindManyOptions<GoogleDMCALinkEntity> = {
+      where: condition,
+    };
+    if (selection) {
+      options.select = selection;
+    }
+    return this.repo.find(options);
   }
 
   insertSkipErrors(
