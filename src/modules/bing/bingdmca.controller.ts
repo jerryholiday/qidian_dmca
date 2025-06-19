@@ -16,6 +16,11 @@ export class BingDMCAController {
     return this.bingdmcaService.getAccount();
   }
 
+  @Get('/dmcalist')
+  getDMCAList() {
+    return this.bingdmcaService.getDMCAList();
+  }
+
   @Post('/submit_book_hrefs')
   submitBookHrefs(@Body() body: SubmitBingBookHrefsDto) {
     const { cbid, hrefs } = body;

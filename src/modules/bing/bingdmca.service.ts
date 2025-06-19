@@ -33,6 +33,16 @@ export class BingDMCAService {
   }
 
   /**
+   * 获取一条未完成的投诉列表
+   * @returns
+   */
+  getDMCAList() {
+    return this.dmcaListRepo.selectOne({ isFinish: 0 }, undefined, {
+      id: 'ASC',
+    });
+  }
+
+  /**
    * 提交盗版链接
    * @param cbid
    * @param hrefs

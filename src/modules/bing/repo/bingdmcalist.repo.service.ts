@@ -16,8 +16,21 @@ export class BingDMCAListRepoService {
     return this.repo.insert(data);
   }
 
-  selectOne(condition: FindOneOptions<BingDMCAListEntity>['where']) {
-    return this.repo.findOne({ where: condition });
+  selectOne(
+    condition: FindOneOptions<BingDMCAListEntity>['where'],
+    selection?: FindOneOptions<BingDMCAListEntity>['select'],
+    order: FindOneOptions<BingDMCAListEntity>['order'] = { id: 'ASC' },
+  ) {
+    const options: FindOneOptions<BingDMCAListEntity> = {
+      where: condition,
+    };
+    if (selection) {
+      options.select = selection;
+    }
+    if (order) {
+      options.order = order;
+    }
+    return this.repo.findOne(options);
   }
 
   update(id: string, data: Partial<BingDMCAListEntity>) {
