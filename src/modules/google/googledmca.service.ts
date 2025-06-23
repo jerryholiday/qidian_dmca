@@ -12,7 +12,7 @@ import * as dayjs from 'dayjs';
 
 @Injectable()
 export class GoogleDMCAService {
-  private readonly EACH_DMCA_LIST_MAX_COUNT = 100;
+  private readonly EACH_DMCA_LIST_MAX_COUNT = 1000;
   private readonly WEBHOOK =
     'https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=a159eb04-dfe9-41f0-abd5-7280d5ef9bfe';
 
