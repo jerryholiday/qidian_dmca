@@ -1,11 +1,18 @@
-import { Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { HostlistService } from './hostlist.service';
 import { ApiTags } from '@nestjs/swagger';
+import { CheckIsPiratedDto } from './dto/index.dto';
 
 @ApiTags('dmca/hostlist')
 @Controller('dmca/hostlist')
 export class HostlistController {
   constructor(private readonly hostlistService: HostlistService) {}
+
+  @Post('checkIsPirated')
+  checkIsPirated(@Body() body: CheckIsPiratedDto) {
+    const { url, title, bookName, cbid } = body;
+    return this.hostlistService.checkIsPirated(url, title, bookName, cbid);
+  }
 
   @Post('test')
   test() {

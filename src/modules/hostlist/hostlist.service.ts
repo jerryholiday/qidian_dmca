@@ -94,7 +94,7 @@ export class HostlistService {
    * @param authorName
    * @returns
    */
-  private async checkIsPirated(
+  async checkIsPirated(
     webUrl: string,
     title: string,
     bookName: string,
