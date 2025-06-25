@@ -40,7 +40,7 @@ export class GoogleDMCAService {
     const dmcalist = await this.dmcaListRepo.selectOne(
       {
         isFinish: 0,
-        infringingURLCount: MoreThanOrEqual(this.EACH_DMCA_LIST_MAX_COUNT),
+        infringingURLCount: MoreThanOrEqual(10),
       },
       undefined,
       {
