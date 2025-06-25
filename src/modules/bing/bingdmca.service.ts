@@ -7,7 +7,7 @@ import { BingDMCAListRepoService } from './repo/bingdmcalist.repo.service';
 import { BookService } from '../book/book.service';
 import { HostlistService } from '../hostlist/hostlist.service';
 import { BingAccountRepoService } from './repo/bingaccount.repo.service';
-import { In } from 'typeorm';
+import { In, MoreThanOrEqual } from 'typeorm';
 import * as dayjs from 'dayjs';
 
 @Injectable()
@@ -36,10 +36,18 @@ export class BingDMCAService {
    * 获取一条未完成的投诉列表
    * @returns
    */
-  getDMCAList() {
-    return this.dmcaListRepo.selectOne({ isFinish: 0 }, undefined, {
-      id: 'ASC',
-    });
+  async getDMCAList() {
+    const dmcalist = await this.dmcaListRepo.selectOne(
+      {
+        isFinish: 0,
+        infringingURLCount: MoreThanOrEqual(this.EACH_DMCA_LIST_MAX_COUNT),
+      },
+      undefined,
+      {
+        id: 'ASC',
+      },
+    );
+    return dmcalist;
   }
 
   /**

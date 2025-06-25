@@ -12,6 +12,7 @@ import {
   name: 'qidian_dmca_google_list',
   comment: '起点 DMCA Google投诉列表',
 })
+@Index('idx_isfinish_count', ['isFinish', 'infringingURLCount'])
 export class GoogleDMCAListEntity {
   @PrimaryGeneratedColumn({ type: 'bigint', comment: '自增长 ID' })
   id: string;

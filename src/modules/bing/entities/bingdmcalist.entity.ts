@@ -12,6 +12,7 @@ import {
   name: 'qidian_dmca_bing_list',
   comment: '起点 DMCA Bing投诉列表',
 })
+@Index('idx_isfinish_count', ['isFinish', 'infringingURLCount'])
 export class BingDMCAListEntity {
   @PrimaryGeneratedColumn({ type: 'bigint', comment: '自增长 ID' })
   id: string;

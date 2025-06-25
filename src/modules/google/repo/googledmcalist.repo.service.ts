@@ -16,8 +16,21 @@ export class GoogleDMCAListRepoService {
     return this.repo.insert(data);
   }
 
-  selectOne(condition: FindOneOptions<GoogleDMCAListEntity>['where']) {
-    return this.repo.findOne({ where: condition });
+  selectOne(
+    condition: FindOneOptions<GoogleDMCAListEntity>['where'],
+    selection?: FindOneOptions<GoogleDMCAListEntity>['select'],
+    order: FindOneOptions<GoogleDMCAListEntity>['order'] = { id: 'ASC' },
+  ) {
+    const options: FindOneOptions<GoogleDMCAListEntity> = {
+      where: condition,
+    };
+    if (selection) {
+      options.select = selection;
+    }
+    if (order) {
+      options.order = order;
+    }
+    return this.repo.findOne(options);
   }
 
   update(id: string, data: Partial<GoogleDMCAListEntity>) {
