@@ -40,7 +40,7 @@ export class BingDMCAService {
     const dmcalist = await this.dmcaListRepo.selectOne(
       {
         isFinish: 0,
-        infringingURLCount: MoreThanOrEqual(10),
+        infringingURLCount: MoreThanOrEqual(50),
       },
       undefined,
       {
