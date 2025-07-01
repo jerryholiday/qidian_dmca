@@ -36,6 +36,10 @@ export class HostlistService {
       ),
     );
 
+    return piratedHrefList;
+
+    // TODO: 盗版链接判断接口有待修复
+
     // 未知链接
     const unkonwHrefList = hrefList.filter(
       (hrefObj) => !domains.some((item) => item.hostname === hrefObj.hostname),
