@@ -98,7 +98,7 @@ export class BingDMCAService {
       ywHrefList = this.hostlistService.checkYWURLList(hrefList);
 
       // 阅文链接覆盖率
-      ywCoverageRate = `${Math.floor(ywHrefList.length / hrefs.length) * 100}%`;
+      ywCoverageRate = `${Math.floor((ywHrefList.length / hrefs.length) * 100)}%`;
 
       console.log(
         `提交数: ${hrefs.length}; 阅文链接数: ${ywHrefList.length}; 盗版链接数： ${piratedHrefList.length}`,
