@@ -90,6 +90,18 @@ export class HostlistService {
   }
 
   /**
+   * 检查 hrefList 对象列表中阅文链接
+   * @param hrefList
+   */
+  checkYWURLList(hrefList: (HrefObj & { hostname: string })[]) {
+    const ywHrefList = hrefList.filter((hrefObj) =>
+      this.checkIsYW(hrefObj.hostname),
+    );
+
+    return ywHrefList;
+  }
+
+  /**
    * 检查链接是否盗版
    * @param webUrl
    * @param title
@@ -128,5 +140,25 @@ export class HostlistService {
     const res = await lastValueFrom(res$);
 
     return res.code;
+  }
+
+  /**
+   * 判断是否阅文站点
+   * @param hostname
+   * @returns
+   */
+  checkIsYW(hostname: string) {
+    return [
+      'qidian.com',
+      'qdmm.com',
+      'qq.com',
+      'hongxiu.com',
+      'xs.cn',
+      'xs8.cn',
+      'rongshuxia.com',
+      'readnovel.com',
+      'xxsy.net',
+      'xxsypro.com',
+    ].some((item) => hostname.endsWith(item));
   }
 }

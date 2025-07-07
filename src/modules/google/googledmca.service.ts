@@ -62,8 +62,12 @@ export class GoogleDMCAService {
 
     // 盗版链接
     let piratedHrefList: (HrefObj & { hostname: string })[] = [];
+    // 阅文链接
+    let ywHrefList: (HrefObj & { hostname: string })[] = [];
     // 新增盗版链接数
     let newPiratedHrefList: (HrefObj & { hostname: string })[] = [];
+    // 阅文链接覆盖率
+    let ywCoverageRate = '0';
     // 异常
     let errmsg = '';
 
@@ -90,8 +94,14 @@ export class GoogleDMCAService {
         hrefList,
       );
 
+      // 阅文链接数
+      ywHrefList = this.hostlistService.checkYWURLList(hrefList);
+
+      // 阅文链接覆盖率
+      ywCoverageRate = `${Math.floor(ywHrefList.length / hrefs.length) * 100}%`;
+
       console.log(
-        `提交数: ${hrefs.length}; 盗版链接数： ${piratedHrefList.length}`,
+        `提交数: ${hrefs.length}; 阅文链接数: ${ywHrefList.length}; 盗版链接数： ${piratedHrefList.length}`,
       );
 
       if (piratedHrefList.length) {
@@ -184,6 +194,9 @@ export class GoogleDMCAService {
         json2md([
           { h1: `[Google]《${book.title}》提交盗版链接` },
           { blockquote: `爬取链接数: ${hrefs.length}` },
+          {
+            blockquote: `阅文链接数: ${ywHrefList.length}, 覆盖率: ${ywCoverageRate}`,
+          },
           { blockquote: `盗版链接数: ${piratedHrefList.length}` },
           { blockquote: `新增盗版链接数: ${newPiratedHrefList.length}` },
           {
