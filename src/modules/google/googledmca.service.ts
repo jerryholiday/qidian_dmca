@@ -157,7 +157,7 @@ export class GoogleDMCAService {
               infringingURLs: leftNewPiratedHrefList
                 .map((item) => item.href)
                 .join('\n'),
-              infringingURLCount: newPiratedHrefList.length,
+              infringingURLCount: leftNewPiratedHrefList.length,
               isFinish: 0,
               dateTime: new Date(),
             });

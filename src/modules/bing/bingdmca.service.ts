@@ -151,7 +151,7 @@ export class BingDMCAService {
               bookId: book.qdbid,
               originalURL: `https://www.qidian.com/book/${book.qdbid}/`,
               infringingURLs: leftNewPiratedHrefList.map((item) => item.href),
-              infringingURLCount: newPiratedHrefList.length,
+              infringingURLCount: leftNewPiratedHrefList.length,
               isFinish: 0,
               dateTime: new Date(),
             });
